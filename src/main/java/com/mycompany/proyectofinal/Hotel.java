@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.*;
+import java.FileWriter;
 
 /**
  *
@@ -74,12 +76,11 @@ class Habitacion {
     private double precioNoche;
     public Minibar minibar;
     private String idCliente;
-    private String detalles;
    
     public List<Producto> productos_usados;
 
 
-    public Habitacion(int numero, int piso, String tipo, double precioNoche, String detalles, Minibar minibar) {
+    public Habitacion(int numero, int piso, String tipo, double precioNoche, Minibar minibar) {
         this.productos_usados = new ArrayList<>();
 
         this.numero = numero;
@@ -88,12 +89,11 @@ class Habitacion {
         this.precioNoche = precioNoche;
         this.minibar = minibar;
         this.ocupada = false;
-        this.detalles = detalles;
     }
 
     public void ocupar(String nombreCliente, String idCliente) {
-        this.nombreCliente = nombreCliente;
-        this.idCliente = idCliente;
+        nombreCliente = nombreCliente;
+        idCliente = idCliente;
         ocupada = true;
     }
 
@@ -103,18 +103,6 @@ class Habitacion {
 
     public boolean estaOcupada() {
         return ocupada;
-    }
-    
-    public String getNombre(){
-        return nombreCliente;
-    }
-    
-    public String getDetalles(){
-        return detalles;
-    }
-    
-    public String getIdCliente(){
-        return idCliente;
     }
 
     public double getPrecioNoche() {
@@ -213,14 +201,10 @@ class Factura {
     private Habitacion habitacion;
     private int diasEstadia;
     private double total;
-    
-    public double getTotal(){
-        return total;
-    }
 
-    public Factura( Habitacion habitacion, int diasEstadia) {
-        this.nombreHuesped = habitacion.getNombre();
-        this.idHuesped = habitacion.getIdCliente();
+    public Factura(String nombreHuesped, String idHuesped, Habitacion habitacion, int diasEstadia) {
+        this.nombreHuesped = nombreHuesped;
+        this.idHuesped = idHuesped;
         this.habitacion = habitacion;
         this.diasEstadia = diasEstadia;
         this.total = (diasEstadia * habitacion.getPrecioNoche()) ;
@@ -243,6 +227,33 @@ class Factura {
         }
        
         System.out.println("Total: " + total);
+  
+        
+            File file_factura = new File("Factura.txt");
+            FileWriter wr_factura = new FileWriter(file_factura);
+            BufferedWriter bu_factura = new BufferedWriter(new FileWriter(wr_factura));
+            
+            //habitación
+            bu_factura.write("Huésped: " + nombreHuesped + " (ID: " + idHuesped + " )");
+            bu_factura.newLine();
+            bu_factura.write("Habitación No.: " + habitacion.getNumero() + " - Tipo: " + habitacion.getTipo());
+            bu_factura.newLine();
+            bu_factura.write("Días de estadía: " + diasEstadia);
+            bu_factura.newLine();
+            bu_factura.write("Costo por noche: " + habitacion.getPrecioNoche());
+
+            //productos
+            for (Producto producto : habitacion.productos_usados) {
+            bu_factura.newLine();
+            bu_factura.write("- " + producto.getNombre() + ": $" + producto.getPrecio());
+            }
+
+            //total
+            bu_factura.newLine();
+            bu_factura.write("Total: " + total);
+
+            bu_factura.close();
+        
     }
 }
 
@@ -261,8 +272,8 @@ class Recepcion {
         for (int piso = 2; piso <= 4; piso++) {
             for (int i = 1; i <= 10; i++) {
                 int numero = piso * 100 + i;
-                habitaciones.put(numero, new Habitacion(numero, piso, "Sencilla", 200000, "Tiene 1 cama doble o dos sencillas", null));
-                habitaciones_list.add(new Habitacion(numero, piso, "Sencilla", 200000, "Tiene 1 cama doble o dos sencillas", null));
+                habitaciones.put(numero, new Habitacion(numero, piso, "Sencilla", 200000, null));
+                habitaciones_list.add(new Habitacion(numero, piso, "Sencilla", 200000, null));
             }
         }
 
@@ -274,34 +285,30 @@ class Recepcion {
             for (Producto producto : minibarEjecutiva.productos) {
                 System.out.println("- " + producto.getNombre() + ": $" + producto.getPrecio() + " indice "+ producto );
             }
-            habitaciones.put(numero, new Habitacion(numero, 5, "Ejecutiva", 350000, "Tiene 1 cama doble o dos sencillas", minibarEjecutiva));
-            habitaciones_list.add(new Habitacion(numero, 5, "Ejecutiva", 350000, "Tiene 1 cama queen o dos semidobles, además tiene minibar compuesto por 4 botellas de licor, dos botellas de agua, 1 kit de aseo personal, 2 gaseosas.", minibarEjecutiva));
+            habitaciones.put(numero, new Habitacion(numero, 5, "Ejecutiva", 350000, minibarEjecutiva));
+            habitaciones_list.add(new Habitacion(numero, 5, "Ejecutiva", 350000, minibarEjecutiva));
         }
 
         // Crear 5 suites en piso 6
         for (int i = 1; i <= 5; i++) {
             int numero = 600 + i;
             Minibar minibarSuite = new Minibar(4, 0, 3, 4, 1,2);
-            habitaciones.put(numero, new Habitacion(numero, 6, "Suite", 500000,"Tiene 1 cama King, o una cama queen y una semidoble. Además tiene un minibar compuesto por una botella de vino, 4 botellas de licor, 3 kit de aseo personal, 4 gaseosas. Tiene también un juego de 2 batas de baño. ", minibarSuite));
-            habitaciones_list.add(new Habitacion(numero, 6, "Suite", 500000,"Tiene 1 cama King, o una cama queen y una semidoble. Además tiene un minibar compuesto por una botella de vino, 4 botellas de licor, 3 kit de aseo personal, 4 gaseosas. Tiene también un juego de 2 batas de baño. ", minibarSuite));
+            habitaciones.put(numero, new Habitacion(numero, 6, "Suite", 500000, minibarSuite));
+            habitaciones_list.add(new Habitacion(numero, 6, "Suite", 500000, minibarSuite));
         }
     }
    
-    public boolean agregarProducto(String tipo, String Producto,int numeroHabitacion){
+    public void agregarProducto(String tipo, String Producto,int numeroHabitacion){
         Habitacion habitacion = habitaciones.get(numeroHabitacion);
-        
-        boolean res = true;
-        
         if (habitacion != null && habitacion.estaOcupada()) {
            
            if(tipo.equals("MINIBAR") ){
                
+               int i = -1;
                for (int j = 0; j < habitacion.minibar.productos.size(); j++) {
                    if(habitacion.minibar.productos.get(j).getNombre().equals(Producto)){
                        habitacion.productos_usados.add(habitacion.minibar.productos.get(j));
                        habitacion.minibar.productos.remove(j);
-                   }else{
-                       res = false;
                    }
                }
                
@@ -320,14 +327,13 @@ class Recepcion {
                        habitacion.productos_usados.add(Restaurante.servicio_habitacion);
                        break;
                    default:
-                       res = false;
+                       throw new AssertionError();
                }
            }
            
         } else {
             System.out.println("La habitación no está ocupada.");
         }
-        return res;
     }
    
     public void checkIn(String nombreHuesped, String idHuesped, Habitacion habitacion) {
@@ -339,13 +345,18 @@ class Recepcion {
         }
     }
 
-    public void checkOut(Habitacion habitacion, int diasEstadia) {
+    public void checkOut(String nombreHuesped, String idHuesped, int numeroHabitacion, int diasEstadia) {
+        Habitacion habitacion = habitaciones.get(numeroHabitacion);
         if (habitacion != null && habitacion.estaOcupada()) {
-            Factura factura = new Factura(habitacion, diasEstadia);
+            Factura factura = new Factura(nombreHuesped, idHuesped, habitacion, diasEstadia);
             factura.generarFactura();
             habitacion.desocupar();
         } else {
             System.out.println("La habitación no está ocupada.");
         }
+
+        FileWriter file_factura = new FileWriter(Factura.txt);
+        BufferedWriter bu_factura = new BufferedWriter(new FileWriter(file_factura));
+        bu_factura.write
     }
 }
