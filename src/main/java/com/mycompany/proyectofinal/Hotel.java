@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.*;
+import java.io.FileWriter;
 
 /**
  *
@@ -213,6 +215,31 @@ class Factura {
         }
        
         System.out.println("Total: " + total);
+        
+            File file_factura = new File("Factura.txt");
+            FileWriter wr_factura = new FileWriter(file_factura);
+            BufferedWriter bu_factura = new BufferedWriter(new FileWriter(wr_factura));
+            
+            //habitación
+            bu_factura.write("Huésped: " + nombreHuesped + " (ID: " + idHuesped + " )");
+            bu_factura.newLine();
+            bu_factura.write("Habitación No.: " + habitacion.getNumero() + " - Tipo: " + habitacion.getTipo());
+            bu_factura.newLine();
+            bu_factura.write("Días de estadía: " + diasEstadia);
+            bu_factura.newLine();
+            bu_factura.write("Costo por noche: " + habitacion.getPrecioNoche());
+
+            //productos
+            for (Producto producto : habitacion.productos_usados) {
+            bu_factura.newLine();
+            bu_factura.write("- " + producto.getNombre() + ": $" + producto.getPrecio());
+            }
+
+            //total
+            bu_factura.newLine();
+            bu_factura.write("Total: " + total);
+
+            bu_factura.close();
     }
 }
 
